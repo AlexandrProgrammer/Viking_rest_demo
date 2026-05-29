@@ -1,10 +1,11 @@
 package ru.mephi.vikingdemo.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 import ru.mephi.vikingdemo.model.Viking;
-import ru.mephi.vikingdemo.model.VikingEntity;
 import ru.mephi.vikingdemo.service.VikingService;
 
 import java.util.List;
@@ -13,33 +14,69 @@ import java.util.List;
 @RequestMapping("/api/vikings")
 @Tag(name = "Vikings", description = "Операции с викингами")
 public class VikingController {
-    private final VikingService vikingService;
 
-    public VikingController(VikingService vikingService) {
+    private final VikingService vikingService;
+    private VikingListener vikingListener;
+
+    public VikingController(VikingService vikingService, VikingListener vikingListener) {
         this.vikingService = vikingService;
+        this.vikingListener = vikingListener;
     }
 
     @GetMapping
-    @Operation(summary = "Получить список всех викингов")
-    public List<Viking> getAll() {
+    @Operation(summary = "Получить список созданных викингов",
+            operationId = "getAllVikings")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Список успешно получен")
+    })
+    public List<Viking> getAllVikings() {
+        System.out.println("GET /api/vikings called");
         return vikingService.findAll();
     }
 
-    @PostMapping
-    @Operation(summary = "Добавить конкретного викинга")
-    public Viking addCustom(@RequestBody Viking viking) {
-        return vikingService.addViking(viking);
+    @GetMapping("/test")
+    @Operation(summary = "Получить список тестовых викингов",
+            operationId = "getTest")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Список успешно получен")
+    })
+    public List<String> test() {
+        System.out.println("GET /api/vikings/test called");
+        return List.of("Ragnar", "Bjorn");
     }
 
-    @DeleteMapping("/{id}")
-    @Operation(summary = "Удалить викинга по ID")
-    public void delete(@PathVariable int id) {
-        vikingService.deleteViking(id);
+    @PostMapping("/post")
+    public void addViking(){
+        vikingListener.testAdd();
     }
 
-    @PutMapping("/{id}")
-    @Operation(summary = "Обновить параметры викинга")
-    public Viking update(@PathVariable int id, @RequestBody VikingEntity updated) {
-        return vikingService.updateViking(id, updated);
+    @PostMapping("/add")
+    @Operation(summary = "Добавить своего викинга", operationId = "addViking")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Викинг успешно добавлен")
+    })
+    public void addCustomViking(@RequestBody Viking viking) {
+        vikingService.addViking(viking);
+        vikingListener.onVikingAdded(viking);
+    }
+
+    @DeleteMapping("/{index}")
+    @Operation(summary = "Удалить викинга по индексу в таблице", operationId = "deleteViking")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Викинг успешно удален")
+    })
+    public void deleteViking(@PathVariable int index) {
+        vikingService.deleteViking(index);
+        vikingListener.onVikingDeleted(index);
+    }
+
+    @PutMapping("/{index}")
+    @Operation(summary = "Обновить параметры викинга по индексу", operationId = "changeParameter")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Параметры обновлены успешно")
+    })
+    public void updateViking(@PathVariable int index, @RequestBody Viking viking) {
+        vikingService.updateViking(index, viking);
+        vikingListener.onVikingUpdated(index, viking);
     }
 }

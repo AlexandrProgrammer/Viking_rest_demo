@@ -6,7 +6,6 @@ import ru.mephi.vikingdemo.model.Viking;
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class VikingTableModel extends AbstractTableModel {
@@ -55,23 +54,17 @@ public class VikingTableModel extends AbstractTableModel {
                 .collect(Collectors.joining(", "));
     }
 
-    public void removeViking (Integer id) {
-        for (int i = 0; i < data.size(); i++) {
-            if (data.get(i).id().equals(id)) {
-                data.remove(i);
-                fireTableRowsDeleted(i, i);
-                return;
-            }
+    public void removeViking(int index) {
+        if (index >= 0 && index < data.size()) {
+            data.remove(index);
+            fireTableRowsDeleted(index, index);
         }
     }
 
-    public void updateViking(Viking updated) {
-        for (int i = 0; i < data.size(); i++) {
-            if (data.get(i).id().equals(updated.id())) {
-                data.set(i, updated);
-                fireTableRowsUpdated(i, i);
-                return;
-            }
+    public void updateViking(int index, Viking viking) {
+        if (index >= 0 && index < data.size()) {
+            data.set(index, viking);
+            fireTableRowsUpdated(index, index);
         }
     }
 }

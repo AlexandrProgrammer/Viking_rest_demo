@@ -44,18 +44,17 @@ public class VikingDesktopFrame extends JFrame {
         bottomPanel.add(createButton);
         add(bottomPanel, BorderLayout.SOUTH);
     }
-    private void onCreateViking() {
-        vikingService.createRandomViking();
-    }
-    public void removeViking(int id){
-        tableModel.removeViking(id);
-    }
 
-    public void updateViking(Viking viking){
-        tableModel.updateViking(viking);
+    private void onCreateViking() {
+        Viking viking = vikingService.createRandomViking();
+        tableModel.addViking(viking);
     }
 
     public void addNewViking(Viking viking){
         tableModel.addViking(viking);
     }
+
+    public void removeVikingFromTable(int index) { tableModel.removeViking(index); }
+
+    public void updateVikingInTable(int index, Viking v) { tableModel.updateViking(index, v); }
 }
